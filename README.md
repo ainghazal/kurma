@@ -1,5 +1,4 @@
-kurma
-=====
+# kurma
 
 Appearing in the forms of a swan [Hamsa], a tortoise [Kurma], a fish [Matsya],
 O foremost of regenerate ones, I shall then display myself as a boar [Varaha],
@@ -10,7 +9,9 @@ the Sattwata race, and lastly as Kalki.
 — Book 12, Santi Parva, Chapter CCCXL (340), translated by Kisari Mohan
 Ganguli, 1883-1896[32]
 
-what is this
-------------
-just another server, really.
+![kurma](https://github.com/ainghazal/kurma/blob/no-masters/kurma.png?raw=true)
+
+## what is this
+
+Just another silly server.
 
