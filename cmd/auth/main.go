@@ -21,6 +21,7 @@ type APIRequest struct {
 var nonces = &kurma.NonceJar{}
 
 func defaultHandler(c echo.Context) error {
+	c.Response().Header().Set("Server", "nginx/1.14.1")
 	request := new(APIRequest)
 	binder := &echo.DefaultBinder{}
 	binder.BindHeaders(c, request)
