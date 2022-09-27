@@ -2,3 +2,6 @@
 *.swo
 kurma
 key
+auth
+relay
+tokens
