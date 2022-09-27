@@ -20,11 +20,6 @@ func isRequestWithMagicCookie(val string) bool {
 	return bytes.Equal([]byte(strings.TrimSpace(val)), []byte(magicCookie))
 }
 
-func isRequestSigned(val string) bool {
-	// TODO implement
-	return false
-}
-
 func isValidNonce(val string) bool {
 	checkURI := authBaseURL + val + "/"
 	resp, err := http.Get(checkURI)
@@ -39,7 +34,6 @@ func isValidNonce(val string) bool {
 
 const (
 	StaticSecret = iota
-	EcdsaSignature
 	ValidNonce
 )
 
@@ -49,7 +43,7 @@ type Discriminator struct {
 	Protected http.HandlerFunc
 }
 
-func DecoyHandler(d Discriminator) http.HandlerFunc {
+func WithDecoyHandler(d Discriminator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cookie := r.Header.Get(secretHeader)
 		log.Println(secretHeader+":", cookie)
@@ -58,8 +52,6 @@ func DecoyHandler(d Discriminator) http.HandlerFunc {
 		switch d.Strategy {
 		case StaticSecret:
 			evalFn = isRequestWithMagicCookie
-		case EcdsaSignature:
-			evalFn = isRequestSigned
 		case ValidNonce:
 			evalFn = isValidNonce
 		default:
@@ -67,40 +59,14 @@ func DecoyHandler(d Discriminator) http.HandlerFunc {
 			w.Write([]byte("bad gateway"))
 			return
 		}
-
 		if !evalFn(cookie) {
+			log.Println("Handing decoy...")
 			d.Decoy(w, r)
 			return
 		} else {
+			log.Println("A friend knocked...")
 			d.Protected(w, r)
 			return
-			/*
-			 conn, _, err := res.(http.Hijacker).Hijack()
-			 if err != nil {
-			 	panic(err)
-			 }
-			 conn.Write([]byte{})
-			 fmt.Fprintf(conn, "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n")
-			*/
-
-			/*
-			 buffer := make([]byte, 1024)
-			 fmt.Println("Server : Enter routine")
-			 for {
-			 	time.Sleep(1 * time.Second)
-			 	fmt.Println("Server : I send")
-			 	_, err = conn.Write([]byte("Hijack server"))
-			 	if err != nil {
-			 		panic(err)
-			 	}
-			 	fmt.Println("Server : I'm receiving")
-			 	n, err := conn.Read(buffer)
-			 	if err != nil {
-			 		panic(err)
-			 	}
-			 	fmt.Printf("Server : %d bytes from client : %s\n", n, string(buffer))
-			 }
-			*/
 		}
 	}
 }

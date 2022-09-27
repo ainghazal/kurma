@@ -6,10 +6,12 @@ import (
 	"log"
 	"math/big"
 	"sync"
+	"time"
 )
 
 var (
-	nonceLen = 8
+	nonceLen             = 8
+	tokenLifetimeSeconds = 30 // TODO make this configurable (tune it in production)
 )
 
 type NonceJar struct {
@@ -24,10 +26,24 @@ func (n *NonceJar) New() string {
 	log.Println("adding nonce", nonce)
 	n.tokens = append(n.tokens, nonce)
 	log.Printf("got %d tokens\n", len(n.tokens))
+	go n.expire(nonce)
 	return nonce
 }
 
-// TODO -- expire tokens after N seconds.
+func (n *NonceJar) expire(token string) {
+	time.AfterFunc(time.Second*time.Duration(tokenLifetimeSeconds), func() {
+		n.mu.Lock()
+		defer n.mu.Unlock()
+		for i, nc := range n.tokens[:] {
+			if bytes.Equal([]byte(token), []byte(nc)) {
+				// we delete the expired token from the jar
+				n.tokens = append(n.tokens[:i], n.tokens[i+1:]...)
+				log.Printf("expired nonce %s\n", token)
+				return
+			}
+		}
+	})
+}
 
 func (n *NonceJar) IsValid(token string) bool {
 	n.mu.Lock()

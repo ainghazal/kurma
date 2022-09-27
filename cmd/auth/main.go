@@ -11,6 +11,7 @@ import (
 var (
 	externalAuthURI = ":3000"
 	localQueryURI   = "localhost:3001"
+	hdr             = "X-Csrf-Token"
 )
 
 type APIRequest struct {
@@ -29,7 +30,7 @@ func defaultHandler(c echo.Context) error {
 	// TODO pass a true condition to return this handler in a closure
 
 	nonce := nonces.New()
-	c.Response().Header().Set("X-CSRF-TOKEN", nonce)
+	c.Response().Header().Set(hdr, nonce)
 
 	return c.String(http.StatusOK, fmt.Sprintf("%s\n", c.RealIP()))
 }
