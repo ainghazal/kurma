@@ -45,7 +45,7 @@ func main() {
 		Protected: protectedHandler,
 	}
 
-	http.HandleFunc("/", kurma.DecoyHandler(dcr))
+	http.HandleFunc("/", kurma.WithDecoyHandler(dcr))
 
 	err := http.ListenAndServeTLS(port, "./testdata/server.crt", "./testdata/server.key", nil)
 	if err != nil {

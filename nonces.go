@@ -14,6 +14,11 @@ var (
 	tokenLifetimeSeconds = 30 // TODO make this configurable (tune it in production)
 )
 
+func FakeNonce() string {
+	str, _ := generateRandomString(nonceLen)
+	return str
+}
+
 type NonceJar struct {
 	tokens []string
 	mu     sync.Mutex

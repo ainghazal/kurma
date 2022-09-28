@@ -1,12 +1,19 @@
 package kurma
 
 import (
+	"crypto/sha512"
 	"crypto/tls"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"os"
+	"time"
+)
+
+const (
+	tokenLen = 142
 )
 
 func PreHeat(authURI, targetURI string) net.Conn {
@@ -16,8 +23,19 @@ func PreHeat(authURI, targetURI string) net.Conn {
 }
 
 func fetchNonce(uri string) string {
-	// TODO set secret here for auth endpoint.
-	resp, err := http.Get(uri)
+	client := &http.Client{
+		Timeout: time.Second * 10,
+	}
+	req, err := http.NewRequest("GET", uri, nil)
+	token := os.Getenv("TOKEN")
+	if token == "" {
+		log.Println("[!] No TOKEN set!!!")
+		ts := time.Now().Unix()
+		hsh := fmt.Sprintf("%x", sha512.Sum512([]byte(string(ts))))
+		token = (hsh + hsh)[:tokenLen]
+	}
+	req.Header.Set(secretHeader, token)
+	resp, err := client.Do(req)
 	if err != nil {
 		panic(err)
 	}

@@ -73,7 +73,8 @@ func VerifyToken(token string, key *ecdsa.PrivateKey) bool {
 	hash := sha1.Sum([]byte(secret))
 	sig, err := hex.DecodeString(token)
 	if err != nil {
-		panic(err)
+		log.Println(err.Error())
+		return false
 	}
 	return ecdsa.VerifyASN1(&key.PublicKey, hash[:], sig)
 }
